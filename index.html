@@ -1,31 +1,38 @@
+
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Simple Scatter Game</title>
+    <title>Super Ace Demo</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="game">
 
-    <h1>🎰 Scatter Game</h1>
+    <h1 class="title">SUPER ACE</h1>
 
-    <div class="balance">
-        Coins: <span id="coins">1000</span>
+    <div class="topbar">
+        <span id="multi">x1</span>
     </div>
 
-    <div class="betbox">
-        Bet:
-        <input type="number" id="bet" value="10" min="1">
+    <div class="board" id="board"></div>
+
+    <div class="info">
+        <div>Balance: <span id="balance">1000</span></div>
+        <div>Bet: <span id="betText">10</span></div>
     </div>
 
-    <div class="slots">
-        <div class="slot" id="slot1">❓</div>
-        <div class="slot" id="slot2">❓</div>
-        <div class="slot" id="slot3">❓</div>
-    </div>
+    <div class="controls">
 
-    <button onclick="spin()">SPIN</button>
+        <button onclick="minusBet()">-</button>
+
+        <button class="spin" onclick="spin()">
+            SPIN
+        </button>
+
+        <button onclick="plusBet()">+</button>
+
+    </div>
 
     <div class="message" id="message"></div>
 
@@ -33,4 +40,4 @@
 
 <script src="app.js"></script>
 </body>
-  </html>
+</html>
