@@ -1,74 +1,158 @@
-let coins = 1000;
-
 const symbols = [
-    "🍒",
-    "🍋",
-    "💎",
-    "7️⃣",
-    "⭐",
-    "🔥"
+    "♥",
+    "♦",
+    "♠",
+    "♣",
+    "A",
+    "K",
+    "Q",
+    "J",
+    "💰"
 ];
 
+let balance = 1000;
+let bet = 10;
+
+const rows = 4;
+const cols = 5;
+
+function createBoard(){
+
+    const board = document.getElementById("board");
+
+    board.innerHTML = "";
+
+    for(let i=0;i<rows*cols;i++){
+
+        let div = document.createElement("div");
+
+        div.className = "cell";
+
+        div.innerHTML = "❔";
+
+        board.appendChild(div);
+    }
+}
+
+createBoard();
+
 function randomSymbol(){
-    return symbols[Math.floor(Math.random() * symbols.length)];
+
+    return symbols[
+        Math.floor(Math.random() * symbols.length)
+    ];
 }
 
 function spin(){
 
-    let bet = parseInt(document.getElementById("bet").value);
+    if(balance < bet){
 
-    if(bet <= 0){
-        alert("Invalid bet");
+        alert("Not enough balance");
         return;
     }
 
-    if(bet > coins){
-        alert("Not enough coins");
-        return;
+    balance -= bet;
+
+    document.getElementById("balance").innerHTML = balance;
+
+    const cells = document.querySelectorAll(".cell");
+
+    let scatterCount = 0;
+
+    let all = [];
+
+    cells.forEach(cell=>{
+
+        let symbol = randomSymbol();
+
+        cell.className = "cell";
+
+        if(symbol === "💰"){
+
+            cell.classList.add("scatter");
+            scatterCount++;
+        }
+
+        cell.innerHTML = symbol;
+
+        all.push(symbol);
+    });
+
+    let msg = "No Win 😢";
+
+    let multiplier = 1;
+
+    if(scatterCount >= 3){
+
+        multiplier = 5;
+
+        let win = bet * multiplier;
+
+        balance += win;
+
+        msg = "🔥 SCATTER BONUS +" + win;
     }
 
-    coins -= bet;
+    else{
 
-    let s1 = randomSymbol();
-    let s2 = randomSymbol();
-    let s3 = randomSymbol();
+        let counts = {};
 
-    document.getElementById("slot1").innerHTML = s1;
-    document.getElementById("slot2").innerHTML = s2;
-    document.getElementById("slot3").innerHTML = s3;
+        all.forEach(s=>{
 
-    let msg = "😢 You lost";
+            counts[s] = (counts[s] || 0) + 1;
+        });
 
-    // JACKPOT
-    if(s1 === s2 && s2 === s3){
+        for(let key in counts){
 
-        let win = bet * 10;
+            if(counts[key] >= 4){
 
-        coins += win;
+                multiplier = 2;
 
-        msg = "🎉 JACKPOT! +" + win;
+                let win = bet * multiplier;
+
+                balance += win;
+
+                msg = "✨ WIN +" + win;
+            }
+
+            if(counts[key] >= 6){
+
+                multiplier = 5;
+
+                let win = bet * multiplier;
+
+                balance += win;
+
+                msg = "🎉 BIG WIN +" + win;
+            }
+        }
     }
 
-    // DOUBLE
-    else if(s1 === s2 || s2 === s3 || s1 === s3){
+    document.getElementById("multi").innerHTML =
+        "x" + multiplier;
 
-        let win = bet * 2;
+    document.getElementById("balance").innerHTML =
+        balance;
 
-        coins += win;
+    document.getElementById("message").innerHTML =
+        msg;
+}
 
-        msg = "✨ Small Win +" + win;
+function plusBet(){
+
+    bet += 10;
+
+    document.getElementById("betText").innerHTML =
+        bet;
+}
+
+function minusBet(){
+
+    if(bet > 10){
+
+        bet -= 10;
     }
 
-    // SCATTER BONUS
-    if(s1 === "⭐" && s2 === "⭐" && s3 === "⭐"){
-
-        let bonus = bet * 20;
-
-        coins += bonus;
-
-        msg = "🔥 SCATTER BONUS +" + bonus;
-    }
-
-    document.getElementById("coins").innerHTML = coins;
-    document.getElementById("message").innerHTML = msg;
+    document.getElementById("betText").innerHTML =
+        bet;
 }
