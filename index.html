@@ -2,195 +2,127 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Super Ace Mini</title>
+<title>Super Ace Scatter</title>
 
 <style>
-
 body{
-    margin:0;
     background:#111;
-    font-family:Arial;
     color:white;
+    font-family:Arial;
     text-align:center;
 }
 
 h1{
     color:gold;
-    margin-top:15px;
 }
 
-#slot{
-    width:370px;
-    margin:auto;
+#balance,#winbox,#freespinbox{
+    font-size:22px;
+    margin:10px;
+}
+
+.slot{
+    width:90px;
+    height:90px;
     background:#222;
-    padding:15px;
-    border-radius:20px;
-    border:4px solid gold;
-    box-shadow:0 0 20px gold;
+    border:3px solid gold;
+    border-radius:15px;
+    font-size:50px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    animation:none;
+}
+
+.scatter{
+    width:75px;
+    height:75px;
+    border-radius:50%;
+    background:gold;
+    color:black;
+    font-size:20px;
+    font-weight:bold;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    animation:spinScatter 2s linear infinite;
+}
+
+@keyframes spinScatter{
+    from{transform:rotate(0deg);}
+    to{transform:rotate(360deg);}
 }
 
 .grid{
     display:grid;
-    grid-template-columns:repeat(5,70px);
-    gap:5px;
+    grid-template-columns:repeat(5,90px);
+    gap:8px;
     justify-content:center;
+    margin-top:20px;
 }
 
-.cell{
-    width:70px;
-    height:70px;
-    background:white;
-    border-radius:10px;
-    font-size:42px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    overflow:hidden;
-    position:relative;
-    animation:drop 0.3s ease;
+.spinAnim{
+    animation:roll 0.15s infinite;
 }
 
-/* CARD COLORS */
-.heart{
-    color:red;
-    background:#ffeaea;
-}
-
-.spade{
-    color:black;
-    background:#f2f2f2;
-}
-
-.diamond{
-    color:orange;
-    background:#fff0d9;
-}
-
-.club{
-    color:blue;
-    background:#e9f2ff;
-}
-
-/* SCATTER */
-.scatter{
-    background:gold;
-    color:white;
-    font-weight:bold;
-    animation:scatterGlow 1s infinite;
-    border:3px solid yellow;
-}
-
-/* DROP EFFECT */
-@keyframes drop{
-    from{
-        transform:translateY(-100px);
-        opacity:0;
-    }
-
-    to{
-        transform:translateY(0);
-        opacity:1;
-    }
-}
-
-/* SCATTER GLOW */
-@keyframes scatterGlow{
-
-    0%{
-        box-shadow:0 0 5px yellow;
-        transform:scale(1);
-    }
-
-    50%{
-        box-shadow:0 0 20px orange;
-        transform:scale(1.1);
-    }
-
-    100%{
-        box-shadow:0 0 5px yellow;
-        transform:scale(1);
-    }
+@keyframes roll{
+    0%{transform:translateY(-10px);}
+    100%{transform:translateY(10px);}
 }
 
 button{
-    margin-top:15px;
-    padding:15px 40px;
-    border:none;
-    border-radius:50px;
-    background:gold;
+    margin-top:20px;
+    padding:12px 30px;
     font-size:22px;
-    font-weight:bold;
+    border:none;
+    border-radius:10px;
+    background:gold;
     cursor:pointer;
 }
 
-.info{
-    margin-top:15px;
-    font-size:22px;
-}
-
 .win{
-    color:lime;
-    font-size:28px;
-    margin-top:10px;
+    animation:flash 0.4s infinite;
 }
 
+@keyframes flash{
+    0%{border-color:yellow;}
+    50%{border-color:red;}
+    100%{border-color:yellow;}
+}
 </style>
 </head>
 
 <body>
 
-<h1>🎰 SUPER ACE MINI 🎰</h1>
+<h1>🎰 SUPER ACE SCATTER 🎰</h1>
 
-<div id="slot">
+<div id="balance">Coins: 1000</div>
+<div id="winbox">Win: 0</div>
+<div id="freespinbox">Free Spins: 0</div>
 
 <div class="grid" id="grid"></div>
 
-<div class="info">
-Balance: <span id="balance">1000</span>
-<br>
-Bet: <span id="bet">20</span>
-</div>
-
 <button onclick="spin()">SPIN</button>
-
-<div class="win" id="result"></div>
-
-</div>
 
 <script>
 
-const normalSymbols = [
-    {icon:"♥", class:"heart"},
-    {icon:"♠", class:"spade"},
-    {icon:"♦", class:"diamond"},
-    {icon:"♣", class:"club"},
-    {icon:"A", class:"heart"},
-    {icon:"K", class:"spade"},
-    {icon:"Q", class:"diamond"},
-    {icon:"J", class:"club"}
-];
-
-const scatterSymbol = {
-    icon:"⭕",
-    class:"scatter"
-};
+const normalSymbols = ["🍒","🍋","🍇","💎","7️⃣","⭐"];
+const scatterSymbol = "SCATTER";
 
 let balance = 1000;
-let bet = 20;
-
 let freeSpins = 0;
+let spinning = false;
 
-const rows = 4;
+const rows = 5;
 const cols = 5;
 
-const grid = document.getElementById("grid");
+let board = [];
 
 function randomSymbol(){
 
     let chance = Math.random();
 
-    // scatter chance
-    if(chance < 0.10){
+    if(chance < 0.12){
         return scatterSymbol;
     }
 
@@ -201,250 +133,286 @@ function randomSymbol(){
 
 function createBoard(){
 
-    let board = [];
+    board = [];
 
     for(let r=0;r<rows;r++){
 
-        let row = [];
+        let row=[];
 
         for(let c=0;c<cols;c++){
-
             row.push(randomSymbol());
         }
 
         board.push(row);
     }
-
-    return board;
 }
 
-function renderBoard(board){
+function drawBoard(){
 
-    grid.innerHTML = "";
+    const grid=document.getElementById("grid");
+    grid.innerHTML="";
 
     for(let r=0;r<rows;r++){
 
         for(let c=0;c<cols;c++){
 
-            let s = board[r][c];
+            const div=document.createElement("div");
+            div.className="slot";
 
-            const div = document.createElement("div");
+            let value = board[r][c];
 
-            div.className = "cell " + s.class;
+            if(value===scatterSymbol){
 
-            div.style.animationDelay =
-                ((r*cols+c)*0.05)+"s";
+                div.innerHTML=`<div class="scatter">⭐</div>`;
 
-            div.innerHTML = s.icon;
+            }else{
+                div.textContent=value;
+            }
+
+            div.id=`cell-${r}-${c}`;
 
             grid.appendChild(div);
         }
     }
 }
 
-function spin(){
+function updateUI(){
 
-    if(freeSpins <= 0){
+    document.getElementById("balance").innerText=
+    "Coins: "+balance;
 
-        if(balance < bet){
-            alert("No balance");
-            return;
-        }
-
-        balance -= bet;
-    }
-
-    if(freeSpins > 0){
-
-        freeSpins--;
-
-        document.getElementById("result").innerHTML =
-            "🎁 FREE SPIN LEFT: " + freeSpins;
-    }
-
-    updateInfo();
-
-    let spins = 0;
-
-    const rolling = setInterval(()=>{
-
-        renderBoard(createBoard());
-
-        spins++;
-
-        if(spins > 15){
-
-            clearInterval(rolling);
-
-            finalSpin();
-        }
-
-    },100);
+    document.getElementById("freespinbox").innerText=
+    "Free Spins: "+freeSpins;
 }
 
-function finalSpin(){
+function animateSpin(){
 
-    let board = createBoard();
-
-    renderBoard(board);
-
-    setTimeout(()=>{
-
-        checkWins(board,1);
-
-    },500);
-}
-
-function checkWins(board,combo){
-
-    let matched = [];
-
-    let totalWin = 0;
-
-    let scatterCount = 0;
-
-    // count scatter
     for(let r=0;r<rows;r++){
 
         for(let c=0;c<cols;c++){
 
-            if(board[r][c].class=="scatter"){
+            document
+            .getElementById(`cell-${r}-${c}`)
+            .classList.add("spinAnim");
+        }
+    }
+}
+
+function stopAnimate(){
+
+    for(let r=0;r<rows;r++){
+
+        for(let c=0;c<cols;c++){
+
+            document
+            .getElementById(`cell-${r}-${c}`)
+            .classList.remove("spinAnim");
+        }
+    }
+}
+
+async function spin(){
+
+    if(spinning) return;
+
+    spinning=true;
+
+    let bet=20;
+
+    if(freeSpins<=0){
+
+        if(balance<bet){
+            alert("No coins!");
+            spinning=false;
+            return;
+        }
+
+        balance-=bet;
+
+    }else{
+
+        freeSpins--;
+    }
+
+    updateUI();
+
+    animateSpin();
+
+    await new Promise(r=>setTimeout(r,1500));
+
+    createBoard();
+
+    drawBoard();
+
+    stopAnimate();
+
+    let totalWin = checkWins();
+
+    document.getElementById("winbox").innerText=
+    "Win: "+totalWin;
+
+    balance += totalWin;
+
+    updateUI();
+
+    spinning=false;
+
+    if(freeSpins>0){
+
+        setTimeout(()=>{
+            spin();
+        },1200);
+    }
+}
+
+function checkWins(){
+
+    let total=0;
+    let combo=1;
+
+    let scatterCount=0;
+
+    for(let r=0;r<rows;r++){
+        for(let c=0;c<cols;c++){
+
+            if(board[r][c]===scatterSymbol){
                 scatterCount++;
             }
         }
     }
 
     // FREE SPINS
-    if(scatterCount >= 5){
+    if(scatterCount>=5){
 
-        freeSpins += 15;
+        freeSpins +=15;
+        alert("🎁 15 FREE SPINS!");
 
-        document.getElementById("result").innerHTML =
-            "🔥 15 FREE SPINS!";
+    }else if(scatterCount>=3){
+
+        freeSpins +=10;
+        alert("🎁 10 FREE SPINS!");
     }
 
-    else if(scatterCount >= 3){
-
-        freeSpins += 10;
-
-        document.getElementById("result").innerHTML =
-            "🎁 10 FREE SPINS!";
-    }
-
-    // CHECK VERTICAL SAME CARDS
+    // VERTICAL PAYLINES
     for(let c=0;c<cols;c++){
 
-        let first = board[0][c].icon;
+        let first=board[0][c];
 
-        let count = 1;
+        if(first===scatterSymbol) continue;
 
-        let temp = [[0,c]];
+        let matched=true;
 
-        for(let r=1;r<rows;r++){
+        let cells=[];
 
-            if(board[r][c].icon == first){
+        for(let r=0;r<rows;r++){
 
-                count++;
-
-                temp.push([r,c]);
-
-            }else{
-
-                break;
+            if(board[r][c]!==first){
+                matched=false;
             }
+
+            cells.push([r,c]);
         }
 
-        // need at least 3 same vertically
-        if(count >= 3){
+        if(matched){
 
-            matched.push(...temp);
+            let win = 100 * combo;
 
-            totalWin += bet * count * combo;
-        }
-    }
+            total += win;
 
-    if(totalWin <= 0){
+            highlight(cells);
 
-        updateInfo();
+            cascade(cells);
 
-        if(freeSpins <= 0){
+            combo++;
 
-            document.getElementById("result").innerHTML =
-                "😢 Lose";
-        }
-
-        return;
-    }
-
-    balance += totalWin;
-
-    document.getElementById("result").innerHTML =
-        "🔥 COMBO x" + combo +
-        " WIN +" + totalWin;
-
-    updateInfo();
-
-    // REMOVE MATCHED
-    matched.forEach(pos=>{
-
-        let r = pos[0];
-        let c = pos[1];
-
-        board[r][c] = null;
-    });
-
-    // FALL DOWN
-    for(let c=0;c<cols;c++){
-
-        let column = [];
-
-        for(let r=rows-1;r>=0;r--){
-
-            if(board[r][c] != null){
-
-                column.push(board[r][c]);
-            }
-        }
-
-        while(column.length < rows){
-
-            column.push(randomSymbol());
-        }
-
-        for(let r=rows-1,i=0;r>=0;r--,i++){
-
-            board[r][c] = column[i];
         }
     }
 
-    renderBoard(board);
+    return total;
+}
 
-    // COMBO CONTINUE
-    if(combo < 5){
+function highlight(cells){
+
+    cells.forEach(pos=>{
+
+        let el=document.getElementById(
+        `cell-${pos[0]}-${pos[1]}`
+        );
+
+        el.classList.add("win");
 
         setTimeout(()=>{
+            el.classList.remove("win");
+        },1000);
+    });
+}
 
-            checkWins(board,combo+1);
+function cascade(cells){
 
-        },700);
+    cells.forEach(pos=>{
+
+        board[pos[0]][pos[1]]=
+        randomSymbol();
+    });
+
+    setTimeout(()=>{
+        drawBoard();
+
+        let extra=checkCascade();
+
+        if(extra>0){
+
+            balance+=extra;
+
+            document.getElementById("winbox").innerText=
+            "Win Combo: "+extra;
+
+            updateUI();
+        }
+
+    },700);
+}
+
+function checkCascade(){
+
+    let extra=0;
+
+    for(let c=0;c<cols;c++){
+
+        let first=board[0][c];
+
+        if(first===scatterSymbol) continue;
+
+        let matched=true;
+
+        for(let r=0;r<rows;r++){
+
+            if(board[r][c]!==first){
+                matched=false;
+            }
+        }
+
+        if(matched){
+
+            extra+=200;
+
+            for(let r=0;r<rows;r++){
+
+                board[r][c]=randomSymbol();
+            }
+
+            drawBoard();
+        }
     }
+
+    return extra;
 }
 
-function updateInfo(){
-
-    document.getElementById("balance").innerHTML =
-        balance;
-
-    document.getElementById("bet").innerHTML =
-        bet;
-}
-
-// START
-renderBoard(createBoard());
+createBoard();
+drawBoard();
+updateUI();
 
 </script>
-
-    
 
 </body>
 </html>
