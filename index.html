@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Scatter Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="game">
+
+    <h1>🎰 Scatter Game</h1>
+
+    <div class="balance">
+        Coins: <span id="coins">1000</span>
+    </div>
+
+    <div class="betbox">
+        Bet:
+        <input type="number" id="bet" value="10" min="1">
+    </div>
+
+    <div class="slots">
+        <div class="slot" id="slot1">❓</div>
+        <div class="slot" id="slot2">❓</div>
+        <div class="slot" id="slot3">❓</div>
+    </div>
+
+    <button onclick="spin()">SPIN</button>
+
+    <div class="message" id="message"></div>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+  </html>
